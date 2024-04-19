@@ -7,9 +7,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore } from "@/lib/firebase";
 import Link from "next/link";
-import { addDoc, collection } from "firebase/firestore";
+import { Timestamp, addDoc, collection } from "firebase/firestore";
+import toast from "react-hot-toast";
 
-export default function CreateCampaign({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -19,14 +20,10 @@ export default function CreateCampaign({
   const [ user ] = useAuthState(auth);
   const router = useRouter();
 
-  useEffect(() => {
-    async function createDoc() {
-      const doc = await addDoc(collection(firestore, "campaigns"), {email: user?.email});
-      router.replace(`/main/campaigns/edit/brand?id=${doc.id}`);
-    }
-
+  React.useEffect(() => {
     if(!searchParams.get('id')) {
-      createDoc();
+      router.replace('/main/campaigns')
+      toast.error('Document ID not found')
     } else {
       router.replace(`/main/campaigns/edit/brand?id=${searchParams.get('id')}`);
     }
@@ -41,7 +38,7 @@ export default function CreateCampaign({
           <h2 className="ms-2">Generate a campaign</h2>
         </div>
         <ul className="space-y-2 text-sm flex flex-col justify-between h-1/2 max-h-60">
-          <Link href="/main/campaigns/edit/brand">
+          <Link href={`/main/campaigns/edit/brand?id=${searchParams.get('id')}`}>
             <SideBarBtn
               destination="brand"
               id="1."
@@ -49,7 +46,7 @@ export default function CreateCampaign({
               icon={<Building2 />}
             />
           </Link>
-          <Link href="/main/campaigns/edit/size">
+          <Link href={`/main/campaigns/edit/size?id=${searchParams.get('id')}`}>
             <SideBarBtn
               destination="size"
               id="2."
@@ -57,7 +54,7 @@ export default function CreateCampaign({
               icon={<Proportions />}
             />
           </Link>
-          <Link href="/main/campaigns/edit/content">
+          <Link href={`/main/campaigns/edit/content?id=${searchParams.get('id')}`}>
             <SideBarBtn
               destination="content"
               id="3."
@@ -65,7 +62,7 @@ export default function CreateCampaign({
               icon={<Text />}
             />
           </Link>
-          <Link href="/main/campaigns/edit/images">
+          <Link href={`/main/campaigns/edit/images?id=${searchParams.get('id')}`}>
             <SideBarBtn
               destination="images"
               id="4."

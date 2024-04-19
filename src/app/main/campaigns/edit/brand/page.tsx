@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore, storage } from "@/lib/firebase";
 import { ref, uploadBytes } from "firebase/storage";
-import { addDoc, collection, doc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { Campaign } from "@/lib/definitions";
 
@@ -21,6 +21,7 @@ export default function Brand() {
   const [user] = useAuthState(auth);
   const searchParams = useSearchParams();
 
+  const [uploadingForm, setUploadingForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     brandName: "",
@@ -82,7 +83,6 @@ export default function Brand() {
         mutate(file, {
           onSuccess: ({ path }) => {
             setFormData({ ...formData, brandLogo: path })
-            // localStorage.setItem("create_campaign_form", JSON.stringify({ ...campaignForm, ...formData, brandLogo: path }))
             toast.success(`File uploaded!`);
           },
           onError: (err) => {
@@ -119,9 +119,15 @@ export default function Brand() {
     :
     <form onSubmit={async (e: React.FormEvent) => {
       e.preventDefault();
-      // localStorage.setItem("create_campaign_form", JSON.stringify({ ...campaignForm, ...formData }))
-      const doc = await addDoc(collection(firestore, "campaigns"), {email: user?.email, ...formData});
-      router.push(`/main/campaigns/edit/size?id=${doc.id}`);
+      setUploadingForm(true)
+      try {
+        await updateDoc(doc(firestore, "campaigns", docId!), formData as Campaign);
+        router.push(`/main/campaigns/edit/size?id=${docId}`);
+      } catch (error) {
+        toast.error("Campaign not saved!")
+      } finally {
+        setUploadingForm(false)
+      }
     }}>
       <h1 className="text-4xl font-bold mb-8">1. Describe your brand</h1>
       <div className="mb-4" id="brandName">
@@ -228,7 +234,7 @@ export default function Brand() {
           }
         </div>
       </div>
-      <Button onClickAction={null} text="Save & Continue" />
+      <Button onClickAction={null} text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Save & Continue"} />
     </form>
   );
 }

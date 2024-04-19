@@ -22,6 +22,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection, useCollectionData } from "react-firebase-hooks/firestore";
 import { useRouter } from "next/navigation";
 import generatedImageUrl from "@/lib/images";
+import Image from "next/image";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -71,8 +72,8 @@ export default function Dashboard() {
   const [campaigns, loading, error] = useCollection(query(collection(firestore, "campaigns"), where("email", "==", user!.email)));
 
   return (
-    <div className="w-full">
-      <div className="text-2xl flex bg-white mb-2 rounded-xl font-bold items-center">
+    <div className="w-full p-6">
+      <div className="text-2xl flex mb-2 rounded-xl font-bold items-center">
         <LayoutDashboard />
         <h2 className="ms-2">Dashboard</h2>
       </div>
@@ -132,10 +133,20 @@ export default function Dashboard() {
                     return (
                       <tr key={campaign.id} className="border-b">
                         <td className="flex justify-center items-center my-6">
-                          <img
-                            className="w-44"
-                            src={generatedImageUrl(data.generatedImage.split("/")[1])}
-                          />
+                          {data.generatedImage ? 
+                            <img
+                              className="w-44"
+                              src={generatedImageUrl(data.generatedImage.split("/")[1])}
+                            />
+                            :
+                            <Image
+                              src={'/image-loading.png'}
+                              alt="Placeholder image"
+                              width={175}
+                              height={175}
+                              className="border"
+                            />
+                          }
                         </td>
                         <td className="text-lg">{data.brandName}</td>
                         <td className="capitalize">{data.size}</td>

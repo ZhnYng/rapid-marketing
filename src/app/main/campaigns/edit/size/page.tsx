@@ -13,6 +13,7 @@ import { Campaign } from "@/lib/definitions";
 export default function Size() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [uploadingForm, setUploadingForm] = useState(false);
 
   const [formData, setFormData] = useState({
     size: ""
@@ -46,10 +47,17 @@ export default function Size() {
     :
     <>
       <h1 className="text-4xl font-bold mb-8">2. Edit your preferred size</h1>
-      <form className="mb-4" onSubmit={(e: React.FormEvent) => {
+      <form onSubmit={async (e: React.FormEvent) => {
         e.preventDefault();
-        updateDoc(doc(firestore, "campaigns", docId!), formData as Campaign);
-        router.push(`/main/campaigns/edit/content?id=${docId}`);
+        setUploadingForm(true)
+        try {
+          await updateDoc(doc(firestore, "campaigns", docId!), formData as Campaign);
+          router.push(`/main/campaigns/edit/content?id=${docId}`);
+        } catch (error) {
+          toast.error("Campaign not saved!")
+        } finally {
+          setUploadingForm(false)
+        }
       }}>
         <div className="flex flex-wrap gap-8 pb-4 my-6">
           <CampaignSizeBtn
@@ -95,7 +103,7 @@ export default function Size() {
             style={{ "width": 100, "height": 150 }}
           />
         </div>
-        <Button onClickAction={null} text="Save & Continue" />
+        <Button onClickAction={null} text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Save & Continue"} />
       </form>
     </>
   );
