@@ -37,9 +37,9 @@ export default function Layout({
 
   if (user) {
     return (
-      <div className="flex h-screen">
+      <div className="flex min-h-screen">
         {/* Sidebar navigation */}
-        <div className="flex-[1] p-4 w-full flex-col">
+        <div className="flex-[1] p-4 flex-col">
           <div
             className="text-xl font-bold flex p-3 rounded-xl mb-4 
                         hover:cursor-pointer transition ease-in-out 
@@ -81,9 +81,8 @@ export default function Layout({
             </div>
           </div>
         </div>
-        <div className="border-r-2 border-opacity-30 my-14"></div>
         {/* Main content - Campaigns */}
-        <div className="p-8 flex-[7] w-full h-full">
+        <div className="flex-[7] w-full h-full bg-gray-200 min-h-screen">
           {children}
         </div>
       </div>

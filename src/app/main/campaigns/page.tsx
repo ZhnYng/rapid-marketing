@@ -58,14 +58,14 @@ export default function Campaigns() {
 
   return (
     <div className="w-full">
-      <div className="text-2xl flex bg-white mb-2 rounded-xl font-bold items-center">
+      <div className="text-2xl flex mb-2 rounded-xl font-bold items-center">
         <Presentation />
         <h2 className="ms-2">Campaigns</h2>
       </div>
       <h1 className="text-3xl mb-8 mt-4">All Campaigns</h1>
       <div className="absolute top-10 right-10">
         <Button
-          onClickAction={() => router.push('/main/campaigns/create')}
+          onClickAction={() => router.push('/main/campaigns/edit')}
           text={
             <div className="flex gap-2">
               New Campaign <PlusSquare />
@@ -74,12 +74,12 @@ export default function Campaigns() {
         />
       </div>
       {campaigns ?
-        <div className="flex gap-10 justify-center w-full h-full">
+        <div className="flex gap-10 justify-center w-full h-full flex-wrap">
           {campaigns.docs.map((doc, index) => {
             const data = doc.data() as Campaign;
             return (
               <div key={index} className="shadow-lg rounded-lg flex-col w-1/3
-                p-6 hover:bg-gray-50 transition ease-in-out duration-300 h-full"
+                p-6 hover:bg-gray-100 transition ease-in-out duration-300 h-full"
               >
                 <div className="border-gray-500 border-2 flex justify-center items-center mb-8 border-opacity-30">
                   {generatingImage || !data.generatedImage ?
@@ -109,7 +109,7 @@ export default function Campaigns() {
                   <p><label className="font-bold mr-2">Call To Action:</label>{data.callToAction}</p>
                   <p><label className="font-bold mr-2">Target Audience:</label>{data.targetAudience}</p>
                   <div className="flex gap-3 justify-end mt-8">
-                    <Button onClickAction={() => router.push(`/main/campaign/edit/${doc.id}`)} text="Edit" />
+                    <Button onClickAction={() => router.push(`/main/campaigns/edit?id=${doc.id}`)} text="Edit" />
                     <Button onClickAction={null} text="Publish" />
                   </div>
                 </div>
