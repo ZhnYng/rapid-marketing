@@ -78,7 +78,7 @@ export default function Content() {
         setUploadingForm(false)
       }
     }}>
-      <h1 className="text-4xl font-bold mb-8">3. Edit the product details</h1>
+      <h1 className="text-4xl font-bold mb-8">3. More product details</h1>
       <div className="mb-4" id="projectDescription">
         <label
           htmlFor="projectDescription"

@@ -10,7 +10,7 @@ import Image from "next/image";
 import { Campaign } from "@/lib/definitions";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
-import generatedImageUrl from "@/lib/images";
+import { generatedImageUrl } from "@/utils/images";
 import toast from "react-hot-toast";
 
 export default function Campaigns() {

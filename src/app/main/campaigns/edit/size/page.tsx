@@ -46,7 +46,7 @@ export default function Size() {
     </div>
     :
     <>
-      <h1 className="text-4xl font-bold mb-8">2. Edit your preferred size</h1>
+      <h1 className="text-4xl font-bold mb-8">2. Choose your preferred size</h1>
       <form onSubmit={async (e: React.FormEvent) => {
         e.preventDefault();
         setUploadingForm(true)

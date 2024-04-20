@@ -14,6 +14,7 @@ import { useDocument } from "react-firebase-hooks/firestore";
 import { auth, firestore, storage } from "@/lib/firebase";
 import { Campaign } from "@/lib/definitions";
 import { ref, uploadBytes } from "firebase/storage";
+import { generateImage, generateImagePrompt } from "@/actions/googleAI";
 
 export default function Images() {
   const router = useRouter();
@@ -95,15 +96,16 @@ export default function Images() {
 
   return (
     loading ? 
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      <Loader2 className="animate-spin" />
-    </div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <Loader2 className="animate-spin" />
+      </div>
     :
       <form onSubmit={async (e: React.FormEvent) => {
         e.preventDefault();
         setUploadingForm(true)
         try {
           await updateDoc(doc(firestore, "campaigns", docId!), formData as Campaign);
+          await generateImage(formData as Campaign, docId!);
           router.push('/main/campaigns')
         } catch (error) {
           toast.error("Campaign not saved!")
@@ -112,7 +114,13 @@ export default function Images() {
         }
       }}>
         <div className="relative mb-4">
-          <h1 className="text-4xl font-bold mb-8">4. Edit image examples for us</h1>
+          {uploadingForm &&
+            <div className="bg-black w-full h-full absolute opacity-90 p-12 flex justify-center items-center gap-2 rounded-md">
+              <Loader2 className="text-white animate-spin" />
+              <h3 className="text-white text-lg font-medium animate-pulse">Generating image...</h3>
+            </div>
+          }
+          <h1 className="text-4xl font-bold mb-8">4. Image examples for us</h1>
           <label htmlFor="brandLogo" className="text-gray-800 font-semibold">
             Example
           </label>

@@ -73,8 +73,10 @@ export default function Layout({
         </ul>
       </div>
       {/* Main content - form */}
-      <div className="p-8 flex-[3] relative">
-        {children}
+      <div className="p-8 flex-[5] relative flex justify-center">
+        <div className="max-w-4xl w-full">
+          {children}
+        </div>
       </div>
     </div>
   );

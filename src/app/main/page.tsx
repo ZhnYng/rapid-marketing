@@ -21,7 +21,7 @@ import { Campaign } from "@/lib/definitions";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection, useCollectionData } from "react-firebase-hooks/firestore";
 import { useRouter } from "next/navigation";
-import generatedImageUrl from "@/lib/images";
+import { generatedImageUrl } from "@/utils/images";
 import Image from "next/image";
 
 export default function Dashboard() {
@@ -152,7 +152,9 @@ export default function Dashboard() {
                         <td className="capitalize">{data.size}</td>
                         <td>
                           <Button
-                            onClickAction={null}
+                            onClickAction={() => {
+                              router.push('/main/campaigns')
+                            }}
                             text={"Details"}
                           />
                         </td>
