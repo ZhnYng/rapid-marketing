@@ -2,7 +2,7 @@
 
 import { Campaign } from "@/lib/definitions";
 import { firestore, storage } from "@/lib/firebase";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { fileTypeFromBuffer } from "file-type";
 import { getBytes, ref, uploadBytes } from "firebase/storage";
 import OpenAI from "openai";
@@ -12,11 +12,10 @@ import { dataURLtoFile } from "@/utils/images";
 import { doc, updateDoc } from "firebase/firestore";
 
 // Access your API key as an environment variable (see "Set up your API key" above)
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 
 const openai = new OpenAI({
-  // apiKey: process.env.OPENAI_KEY,
-  apiKey: "",
+  apiKey: process.env.OPENAI_KEY || '',
   dangerouslyAllowBrowser: true,
 });
 
@@ -59,17 +58,31 @@ function fileToGenerativePart(path: string, mimeType: string) {
 }
 
 export async function generateImagePrompt(formData: Campaign) {
-  console.info("function called");
   const { fileDestination, mimeType } = await downloadImage(
     formData.exampleImage
   );
-  console.info(`File type: ${mimeType}`);
-  console.info(
-    `Image downloaded to ${fileDestination} as ${mimeType.toString()}`
-  );
+
+  const safetySettings = [
+    {
+      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    },
+  ];
 
   // For text-and-image input (multimodal), use the gemini-pro-vision model
-  const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+  const model = genAI.getGenerativeModel({ model: "gemini-pro-vision", safetySettings: safetySettings });
 
   const cleanFormData = {
     brandName: formData.brandName,
@@ -82,7 +95,18 @@ export async function generateImagePrompt(formData: Campaign) {
     exampleImage: formData.exampleImage,
   }
   
-  const prompt = `ONLY use information from this javascript object ${cleanFormData} with the design inspired by the provided image to design a post for this company. Describe in detail how you envision the poster to look like. Specify exactly the text that should be written.`;
+  const prompt = `
+    ONLY use information provided.
+    The following information is about a company and the product it is offering.
+    ${JSON.stringify(cleanFormData)} 
+    Using this information, design a post for this product.
+    Describe in detail how you envision the poster to look like. 
+    Keep the design minimalistic with little to no words.
+    Specify exactly the text that should be written, with reference to the provided information.
+    Be detailed about the layout of the poster such as colors for example.
+    Design only the layout of the poster with inspiration from the provided example image.
+    The content of the example image does not necessarily relate to the company's product.
+  `;
 
   const imageParts = [
     fileToGenerativePart(fileDestination, mimeType.toString()),
@@ -90,8 +114,10 @@ export async function generateImagePrompt(formData: Campaign) {
 
   try {
     const result = await model.generateContent([prompt, ...imageParts]);
-    console.info(`Model result: ${result}`);
     const response = await result.response;
+    if (response.promptFeedback?.blockReason) {
+      throw Error(response.promptFeedback.blockReasonMessage)
+    }
     const text = response.text();
     return text;
   } catch (error) {
@@ -106,21 +132,19 @@ export async function generateImage(formData: Campaign, docId:string) {
     console.log(prompt);
 
     const image = await openai.images.generate({
-      model: "dall-e-2",
+      model: "dall-e-3",
       prompt: prompt,
       size: "1024x1024",
       n: 1,
       response_format: "b64_json",
     });
-    console.log(image.data);
 
     const dataURL = `data:image/png;base64,${image.data[0].b64_json}`;
     const file = dataURLtoFile(dataURL, "generatedImage.png");
-    console.log(file);
 
     const uploadFilePath = ref(
       storage,
-      "generated-images/" + Date.now().toString() + "-" + file.name
+      "images/" + Date.now().toString() + "-" + file.name
     );
     const snapshot = await uploadBytes(uploadFilePath, file);
     const path = snapshot.metadata.fullPath;
@@ -128,5 +152,6 @@ export async function generateImage(formData: Campaign, docId:string) {
     await updateDoc(doc(firestore, "campaigns", docId), {...formData, generatedImage: path});
   } catch (error) {
     console.error("Error creating image:", error);
+    throw error;
   }
 }

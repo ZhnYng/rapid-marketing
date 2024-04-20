@@ -54,11 +54,11 @@ export default function Campaigns() {
         </div>
       </div>
       {campaigns ?
-        <div className="flex gap-10 justify-center w-full h-full flex-wrap">
+        <div className="flex justify-evenly w-full h-full flex-wrap">
           {campaigns.docs.sort((a, b) => a.data().timestamp.nanoseconds - b.data().timestamp.nanoseconds).map((doc, index) => {
             const data = doc.data() as Campaign;
             return (
-              <div key={index} className="shadow-lg rounded-lg flex-col w-1/4
+              <div key={index} className="shadow-lg rounded-lg flex-col w-2/5 max-w-80
                 p-6 hover:bg-gray-100 transition ease-in-out duration-300 h-full"
               >
                 <div className="border-gray-500 border-2 flex justify-center items-center mb-8 border-opacity-30">

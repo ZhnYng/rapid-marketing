@@ -104,7 +104,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <div className="flex gap-8">
+      <div className="flex gap-4">
         <div className="my-6 flex-[1]">
           <h2 className="text-2xl my-4">Traction over time</h2>
           <div className="bg-gray-100 rounded-lg p-4">
@@ -118,7 +118,7 @@ export default function Dashboard() {
           <h2 className="text-2xl my-4">Campaigns</h2>
           <div className="bg-gray-100 rounded-lg p-4">
             <div className="bg-white rounded-lg p-6 h-96 overflow-y-scroll">
-              <table className="w-full text-center ">
+              <table className="w-full text-center">
                 <thead className="">
                   <tr>
                     <td>Generated Image</td>

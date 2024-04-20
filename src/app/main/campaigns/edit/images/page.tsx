@@ -14,7 +14,7 @@ import { useDocument } from "react-firebase-hooks/firestore";
 import { auth, firestore, storage } from "@/lib/firebase";
 import { Campaign } from "@/lib/definitions";
 import { ref, uploadBytes } from "firebase/storage";
-import { generateImage, generateImagePrompt } from "@/actions/googleAI";
+import { generateImage, generateImagePrompt } from "@/actions/generation";
 
 export default function Images() {
   const router = useRouter();
@@ -108,7 +108,7 @@ export default function Images() {
           await generateImage(formData as Campaign, docId!);
           router.push('/main/campaigns')
         } catch (error) {
-          toast.error("Campaign not saved!")
+          toast.error(`Campaign not saved! ${error}`)
         } finally {
           setUploadingForm(false)
         }
