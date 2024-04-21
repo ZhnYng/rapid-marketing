@@ -108,7 +108,7 @@ export default function Images() {
           await generateImage(formData as Campaign, docId!);
           router.push('/main/campaigns')
         } catch (error) {
-          toast.error(`Campaign not saved! ${error}`)
+          toast.error(`Campaign not saved! OpenAI API key not found.`)
         } finally {
           setUploadingForm(false)
         }

@@ -25,7 +25,9 @@ export default function Layout({
       router.replace('/main/campaigns')
       toast.error('Document ID not found')
     } else {
-      router.replace(`/main/campaigns/edit/brand?id=${searchParams.get('id')}`);
+      if(pathname == '/main/campaigns/edit') {
+        router.replace(`/main/campaigns/edit/brand?id=${searchParams.get('id')}`);
+      }
     }
   })
 
