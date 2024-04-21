@@ -153,12 +153,13 @@ export default function Images() {
                 <img
                   src={`https://firebasestorage.googleapis.com/v0/b/rapid-marketing-ai.appspot.com/o/images%2F${formData.exampleImage.split("/")[1]
                     }?alt=media&`}
+                  alt="Example image"
                 />
               </div>
             }
           </div>
         </div>
-        <Button onClickAction={null} text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Submit"} />
+        <Button text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Submit"} />
       </form>
   );
 }

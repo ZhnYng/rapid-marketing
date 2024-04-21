@@ -103,7 +103,7 @@ export default function Size() {
             style={{ "width": 100, "height": 150 }}
           />
         </div>
-        <Button onClickAction={null} text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Save & Continue"} />
+        <Button text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Save & Continue"} />
       </form>
     </>
   );

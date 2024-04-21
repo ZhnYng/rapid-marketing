@@ -27,7 +27,7 @@ export default function Layout({
     } else {
       router.replace(`/main/campaigns/edit/brand?id=${searchParams.get('id')}`);
     }
-  }, [])
+  })
 
   return (
     <div className="flex min-h-screen p-8">

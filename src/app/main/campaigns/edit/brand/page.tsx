@@ -234,7 +234,7 @@ export default function Brand() {
           }
         </div>
       </div>
-      <Button onClickAction={null} text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Save & Continue"} />
+      <Button text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Save & Continue"} />
     </form>
   );
 }

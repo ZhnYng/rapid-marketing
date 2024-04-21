@@ -54,7 +54,7 @@ export default function Campaigns() {
         </div>
       </div>
       {campaigns ?
-        <div className="flex justify-evenly w-full h-full flex-wrap">
+        <div className="flex justify-center gap-8 w-full h-full flex-wrap">
           {campaigns.docs.sort((a, b) => a.data().timestamp.nanoseconds - b.data().timestamp.nanoseconds).map((doc, index) => {
             const data = doc.data() as Campaign;
             return (
@@ -71,6 +71,7 @@ export default function Campaigns() {
                     />
                     :
                     <img
+                      alt="Generated image"
                       className="w-full"
                       src={generatedImageUrl(data.generatedImage.split("/")[1])}
                     />
@@ -89,7 +90,7 @@ export default function Campaigns() {
                   <p><label className="font-bold mr-2">Target Audience:</label>{data.targetAudience}</p>
                   <div className="flex gap-3 justify-end mt-8">
                     <Button onClickAction={() => router.push(`/main/campaigns/edit?id=${doc.id}`)} text={<EditIcon />} />
-                    <Button onClickAction={null} text={<Send />} />
+                    <Button text={<Send />} />
                     <Button
                       onClickAction={() => {
                         try {
@@ -131,8 +132,8 @@ export default function Campaigns() {
               <p><label className="font-bold mr-2">Call To Action:</label>Create a campaign today!</p>
               <p><label className="font-bold mr-2">Target Audience:</label>You</p>
               <div className="flex gap-3 justify-end mt-8">
-                <Button onClickAction={null} text="Edit" />
-                <Button onClickAction={null} text="Publish" />
+                <Button text="Edit" />
+                <Button text="Publish" />
               </div>
             </div>
           </div>

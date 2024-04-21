@@ -1,6 +1,10 @@
 "use client"
 
-export default function Button({onClickAction, text}) {
+export default function Button(
+  {onClickAction, text}
+  :
+  {onClickAction?:React.MouseEventHandler<HTMLButtonElement>, text:React.JSX.Element|string}
+) {
   return (
     <button
       onClick={onClickAction}

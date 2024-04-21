@@ -136,6 +136,7 @@ export default function Dashboard() {
                           {data.generatedImage ? 
                             <img
                               className="w-44"
+                              alt="Generated image"
                               src={generatedImageUrl(data.generatedImage.split("/")[1])}
                             />
                             :

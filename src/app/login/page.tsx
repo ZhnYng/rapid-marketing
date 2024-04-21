@@ -34,7 +34,7 @@ export default function Login() {
 
         {error && (
           <p className="text-red-500 text-sm mb-4">
-            {error.replace('Firebase: ', '')}
+            {error.replace("Firebase: ", "")}
           </p>
         )}
 
@@ -101,7 +101,7 @@ export default function Login() {
           </div>
 
           <Button
-            onClickAction={null}
+            onClickAction={undefined}
             text={
               loggingIn || isPending ? (
                 <>
@@ -114,7 +114,7 @@ export default function Login() {
           />
 
           <p className="mt-4 text-gray-600 text-sm">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a href="/signup" className="text-purple-500">
               Sign up here
             </a>
