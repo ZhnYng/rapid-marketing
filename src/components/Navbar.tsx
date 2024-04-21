@@ -34,13 +34,13 @@ export default function Root() {
                     Home
                   </a>
                   <a
-                    href="/about"
+                    href="#"
                     className="transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     About
                   </a>
                   <a
-                    href="/contact"
+                    href="#"
                     className="transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Contact Us

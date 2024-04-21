@@ -3,7 +3,7 @@
 import { auth } from "@/lib/firebase";
 import clsx from "clsx";
 import { signOut } from "firebase/auth";
-import { LayoutDashboard, Loader2, LogOut, Megaphone, Presentation } from "lucide-react";
+import { LayoutDashboard, Loader2, LogOut, Megaphone, Presentation, User } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import toast from "react-hot-toast";
@@ -68,6 +68,15 @@ export default function Layout({
               <Presentation />
               <p>Campagins</p>
             </div>
+            <div className={clsx(`flex gap-4 hover:bg-gray-100 
+              hover:text-purple-700 hover:cursor-pointer p-3 
+              rounded-xl text-lg items-center`,
+              { "bg-purple-100 text-purple-700": pathname.includes('account') })}
+              onClick={() => router.push("/main/account")}
+            >
+              <User />
+              <p>Account</p>
+            </div>
             <div className={`flex gap-4 hover:bg-gray-100 
                   hover:text-purple-700 hover:cursor-pointer p-3 
                   rounded-xl text-lg items-center`}
@@ -82,7 +91,7 @@ export default function Layout({
           </div>
         </div>
         {/* Main content - Campaigns */}
-        <div className="flex-[7] w-full h-full bg-gray-200 min-h-screen">
+        <div className="flex-[7] w-full h-full bg-gray-200 min-h-screen relative">
           {children}
         </div>
       </div>
