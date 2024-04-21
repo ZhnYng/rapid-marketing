@@ -15,6 +15,7 @@ import { auth, firestore, storage } from "@/lib/firebase";
 import { Campaign } from "@/lib/definitions";
 import { ref, uploadBytes } from "firebase/storage";
 import { generateImage, generateImagePrompt } from "@/actions/generation";
+import { AuthenticationError } from "openai";
 
 export default function Images() {
   const router = useRouter();
@@ -105,10 +106,15 @@ export default function Images() {
         setUploadingForm(true)
         try {
           await updateDoc(doc(firestore, "campaigns", docId!), formData as Campaign);
-          await generateImage(formData as Campaign, docId!);
-          router.push('/main/campaigns')
+          const response = await generateImage(formData as Campaign, docId!, user!.email!);
+          if(response?.error) {
+            toast.error(response.error)
+          } else {
+            router.push('/main/campaigns')
+          }
         } catch (error) {
-          toast.error(`Campaign not saved! OpenAI API key not found.`)
+          console.error(error)
+          toast.error(`Campaign not saved!`)
         } finally {
           setUploadingForm(false)
         }

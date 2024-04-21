@@ -5,23 +5,15 @@ import { firestore, storage } from "@/lib/firebase";
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { fileTypeFromBuffer } from "file-type";
 import { getBytes, ref, uploadBytes } from "firebase/storage";
-import OpenAI from "openai";
+import OpenAI, { APIError, AuthenticationError } from "openai";
 import fs from "fs";
 import path from "path";
 import { dataURLtoFile } from "@/utils/images";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
 
-// Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_KEY || '',
-  dangerouslyAllowBrowser: true,
-});
-
 export async function downloadImage(imagePath: string) {
-  console.log(`Image path: ${imagePath}`);
-
   try {
     // const folder = '/tmp/'
     const fileDestination = `/tmp/${imagePath}`;
@@ -49,12 +41,17 @@ export async function downloadImage(imagePath: string) {
 
 // Converts local file information to a GoogleGenerativeAI.Part object.
 function fileToGenerativePart(path: string, mimeType: string) {
-  return {
-    inlineData: {
-      data: Buffer.from(fs.readFileSync(path)).toString("base64"),
-      mimeType,
-    },
-  };
+  try {
+    return {
+      inlineData: {
+        data: Buffer.from(fs.readFileSync(path)).toString("base64"),
+        mimeType,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    throw error
+  }
 }
 
 export async function generateImagePrompt(formData: Campaign) {
@@ -115,9 +112,11 @@ export async function generateImagePrompt(formData: Campaign) {
   try {
     const result = await model.generateContent([prompt, ...imageParts]);
     const response = await result.response;
+
     if (response.promptFeedback?.blockReason) {
-      throw Error(response.promptFeedback.blockReasonMessage)
+      throw {blockReasonMessage: response.promptFeedback.blockReasonMessage}
     }
+
     const text = response.text();
     return text;
   } catch (error) {
@@ -126,10 +125,15 @@ export async function generateImagePrompt(formData: Campaign) {
   }
 }
 
-export async function generateImage(formData: Campaign, docId:string) {
+export async function generateImage(formData: Campaign, docId:string, email:string) {
   try {
+    const account = await getDocs(query(collection(firestore, "accounts"), where("email", "==", email)));
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_KEY || account.docs[0].data().openaiAPIKey
+    });
+
     const prompt = await generateImagePrompt(formData);
-    console.log(prompt);
 
     const image = await openai.images.generate({
       model: "dall-e-3",
@@ -151,7 +155,9 @@ export async function generateImage(formData: Campaign, docId:string) {
 
     await updateDoc(doc(firestore, "campaigns", docId), {...formData, generatedImage: path});
   } catch (error) {
-    console.error("Error creating image:", error);
+    if(error instanceof AuthenticationError) {
+      return {error: "Invalid OpenAI API key"}
+    }
     throw error;
   }
 }
