@@ -3,7 +3,7 @@
 import { auth } from "@/lib/firebase";
 import clsx from "clsx";
 import { signOut } from "firebase/auth";
-import { LayoutDashboard, Loader2, LogOut, Megaphone, Presentation, User } from "lucide-react";
+import { FolderPen, LayoutDashboard, LineChartIcon, Loader2, LogOut, Megaphone, Presentation, User } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import toast from "react-hot-toast";
@@ -58,6 +58,24 @@ export default function Layout({
             >
               <LayoutDashboard />
               <p>Dashboard</p>
+            </div>
+            <div className={clsx(`flex gap-4 hover:bg-gray-100 
+              hover:text-purple-700 hover:cursor-pointer p-3 
+              rounded-xl text-lg items-center`,
+              { "bg-purple-100 text-purple-700": pathname.includes('analysis') })}
+              onClick={() => router.push("/main/analysis")}
+            >
+              <LineChartIcon />
+              <p>Analysis</p>
+            </div>
+            <div className={clsx(`flex gap-4 hover:bg-gray-100 
+              hover:text-purple-700 hover:cursor-pointer p-3 
+              rounded-xl text-lg items-center`,
+              { "bg-purple-100 text-purple-700": pathname.includes('brands') })}
+              onClick={() => router.push("/main/brands")}
+            >
+              <FolderPen />
+              <p>Brands</p>
             </div>
             <div className={clsx(`flex gap-4 hover:bg-gray-100 
               hover:text-purple-700 hover:cursor-pointer p-3 

@@ -19,16 +19,6 @@ export default function Campaigns() {
   const [generatingImage, setGeneratingImage] = React.useState(false);
   const [campaigns, loading, error] = useCollection(query(collection(firestore, "campaigns"), where("email", "==", user!.email)));
 
-  React.useEffect(() => {
-    campaigns?.docs.map(campaign => {
-      const data = campaign.data() as Campaign
-      if (!data.generatedImage) {
-        // Check generation status
-      }
-    })
-
-  }, [campaigns])
-
   return (
     <div className="w-full p-6 pb-20">
       <div className="sticky flex w-full justify-between">
@@ -42,7 +32,19 @@ export default function Campaigns() {
         <div className="top-10 right-10">
           <Button
             onClickAction={async () => {
-              const doc = await addDoc(collection(firestore, "campaigns"), { email: user?.email, timestamp: Timestamp.now() });
+              const doc = await addDoc(collection(firestore, "campaigns"), { 
+                version: campaigns?.docs.length || 0, 
+                email: user?.email, 
+                timestamp: Timestamp.now() 
+              });
+              await addDoc(collection(firestore, "statistics"), {
+                campaignId: doc.id, 
+                clicks: 0,
+                impressions: 0,
+                conversionRate: 0,
+                totalCost: 0,
+                timestamp: Timestamp.now()
+              })
               router.replace(`/main/campaigns/edit?id=${doc.id}`);
             }}
             text={

@@ -1,8 +1,7 @@
+import { Timestamp } from "firebase/firestore";
+
 export type Campaign = {
-  brandName: string;
-  brandType: string;
-  brandDescription: string;
-  brandLogo: string;
+  brandId: string
   size: string;
   projectDescription: string;
   targetAudience: string;
@@ -11,4 +10,13 @@ export type Campaign = {
   callToAction: string;
   exampleImage: string;
   generatedImage: string;
+}
+
+export type Statistics = {
+  campaignId: string, 
+  clicks: number,
+  impressions: number,
+  conversionRate: number,
+  totalCost: number,
+  timestamp: Timestamp
 }

@@ -14,7 +14,7 @@ import { useDocument } from "react-firebase-hooks/firestore";
 import { auth, firestore, storage } from "@/lib/firebase";
 import { Campaign } from "@/lib/definitions";
 import { ref, uploadBytes } from "firebase/storage";
-import { generateImage, generateImagePrompt } from "@/actions/generation";
+import { generateDifferenceAnalysis, generateImage, generateImagePrompt } from "@/actions/generation";
 import { AuthenticationError } from "openai";
 
 export default function Images() {

@@ -42,7 +42,7 @@ const Home = () => {
         </div>
 
         {/* Image Gallery Section */}
-        <section className="py-8 xl:m-12">
+        <section className="p-8 xl:m-12">
           <div className="max-w-xl">
             <h2 className="text-md font-medium mb-4 text-purple-500">
               Past projects

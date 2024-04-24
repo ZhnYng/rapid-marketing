@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, ChevronRightIcon, CircleDollarSign, LayoutDashboard, MousePointerClickIcon, Percent, PercentCircle, PlusSquare, View } from "lucide-react";
+import { Calendar, Check, ChevronRightIcon, CircleDollarSign, LayoutDashboard, MousePointerClickIcon, Percent, PercentCircle, PlusSquare, View } from "lucide-react";
 import React from "react";
 import Button from "@/components/Button";
 import {
@@ -124,7 +124,7 @@ export default function Dashboard() {
                     <td>Generated Image</td>
                     <td>Brand Name</td>
                     <td>Size</td>
-                    <td>More</td>
+                    <td>Select</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -154,9 +154,9 @@ export default function Dashboard() {
                         <td>
                           <Button
                             onClickAction={() => {
-                              router.push('/main/campaigns')
+                              // router.push('/main/campaigns')
                             }}
-                            text={"Details"}
+                            text={<Check/>}
                           />
                         </td>
                       </tr>
