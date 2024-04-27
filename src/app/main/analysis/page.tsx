@@ -4,7 +4,7 @@ import Button from "@/components/Button";
 import { Analysis, Campaign, Statistics } from "@/lib/definitions";
 import { generatedImageUrl } from "@/utils/images";
 import { ArrowLeft, ArrowRight, Check, CircleDollarSign, LineChart, Loader2, LucideEye, MousePointerClick, Percent, ScanEye } from "lucide-react";
-import { collection, query, where, doc as docRef, orderBy, doc, addDoc, updateDoc } from "firebase/firestore";
+import { collection, query, where, doc as docRef, orderBy, doc, addDoc, updateDoc, QuerySnapshot, DocumentSnapshot, DocumentData } from "firebase/firestore";
 import { useCollection, useDocument } from "react-firebase-hooks/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore } from "@/lib/firebase";
@@ -43,27 +43,6 @@ export default function Page() {
             const data = campaign.data() as Campaign;
             const prevCampaign = campaigns.docs[index + 1]
 
-            // if (data.analysisId && data.version != 0) {
-            //   // Generate analysis
-            //   const generateAnalysis = async () => {
-            //     await generateDifferenceAnalysis(data, prevCampaign.data() as Campaign)
-            //     const analysisDoc = await addDoc(collection(firestore, "analysis"), {
-            //       campaignId1: campaign.id,
-            //       campaignId2: prevCampaign.id,
-            //       difference: "Generate difference",
-            //       suggestions: "Generate suggestions"
-            //     })
-            //     await updateDoc(doc(firestore, "campaigns", campaign.id), { analysisId: analysisDoc.id })
-            //   }
-
-            //   try {
-            //     generateAnalysis();
-            //   } catch (err) {
-            //     console.error(err)
-            //     toast.error("Analysis cannot be generated at this time.")
-            //   }
-            // }
-
             return (
               prevCampaign &&
               <div className="flex gap-8 items-center border-gray-400 py-20" key={index}>
@@ -86,9 +65,10 @@ export default function Page() {
                 </div>
                 <div className="flex flex-col gap-6 justify-center flex-[2]">
                   <div className="ml-10 border border-gray-400 rounded-md p-6">
-                    {data.analysisId &&
-                      <VersionAnalysis analysisId={data.analysisId} />
-                    }
+                    <VersionAnalysis
+                      campaign={campaign}
+                      prevCampaign={prevCampaign}
+                    />
                   </div>
                 </div>
               </div>
@@ -143,9 +123,57 @@ function CampaignStats({ campaignId, generatedImage }: { campaignId: string; gen
   )
 }
 
-function VersionAnalysis({ analysisId }: { analysisId: string }) {
-  const [analysis, loading, error] = useDocument(doc(firestore, "analysis", analysisId));
-  const data = analysis?.data() as Analysis
+function VersionAnalysis(
+  {
+    campaign,
+    prevCampaign
+  }:{ 
+    campaign: DocumentSnapshot; 
+    prevCampaign: DocumentSnapshot; 
+  }
+) {
+  const [generatingAnalysis, setGeneratingAnalysis] = React.useState(false);
+  const campaignData = campaign.data() as Campaign;
+  const prevCampaignData = prevCampaign.data() as Campaign;
+
+  const generateAnalysis = async () => {
+    const differenceAnalysis = await generateDifferenceAnalysis(
+      JSON.stringify(campaignData),
+      JSON.stringify(prevCampaignData)
+    );
+    
+    if (differenceAnalysis) {
+      const analysisDoc = await addDoc(collection(firestore, "analysis"), {
+        campaignId1: campaign.id,
+        campaignId2: prevCampaign.id,
+        difference: differenceAnalysis.difference,
+        suggestions: differenceAnalysis.suggestions
+      })
+      console.log("works here")
+      await updateDoc(
+        doc(firestore, "campaigns", campaign.id), 
+        { analysisId: analysisDoc.id }
+      )
+      console.log("not here")
+    } else {
+      toast.error("AI did not return an analysis.")
+    }
+  }
+
+  if (!campaignData.analysisId && campaignData.version != 0) {
+    try {
+      setGeneratingAnalysis(true);
+      generateAnalysis();
+      setGeneratingAnalysis(false);
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setGeneratingAnalysis(false);
+    }
+  }
+
+  const [analysis, loading, error] = useDocument(doc(firestore, "analysis", campaignData.analysisId || ""));
+  const data = analysis?.data() as Analysis;
 
   if (loading) {
     return (
@@ -155,7 +183,15 @@ function VersionAnalysis({ analysisId }: { analysisId: string }) {
     );
   }
 
-  if (error) console.error(error)
+  if (generatingAnalysis) {
+    return (
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) console.error(error);
 
   return (
     data &&

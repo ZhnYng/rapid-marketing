@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react";
 import { EditIcon, PlusSquare, Presentation, Send, Trash2 } from "lucide-react";
 import { useCollection } from "react-firebase-hooks/firestore";
@@ -8,16 +6,22 @@ import { auth, firestore } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Image from "next/image";
 import { Campaign } from "@/lib/definitions";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import { generatedImageUrl } from "@/utils/images";
 import toast from "react-hot-toast";
+import { currentUser } from "@clerk/nextjs/server";
+import CreateCampaignBtn from "@/ui/campaign/create-campaign";
+import Link from "next/link";
+import DeleteCampaign from "@/ui/campaign/delete-campaign";
+import DeleteCampaignBtn from "@/ui/campaign/delete-campaign";
 
-export default function Campaigns() {
-  const router = useRouter();
-  const [user] = useAuthState(auth);
-  const [generatingImage, setGeneratingImage] = React.useState(false);
-  const [campaigns, loading, error] = useCollection(query(collection(firestore, "campaigns"), where("email", "==", user!.email)));
+export default async function Campaigns() {
+  const user = await currentUser();
+  const campaigns = await getDocs(query(
+    collection(firestore, "campaigns"),
+    where("email", "==", user?.primaryEmailAddress?.emailAddress)
+  ));
 
   return (
     <div className="w-full p-6 pb-20">
@@ -30,29 +34,7 @@ export default function Campaigns() {
           <h1 className="text-3xl mb-8 mt-4">All Campaigns</h1>
         </div>
         <div className="top-10 right-10">
-          <Button
-            onClickAction={async () => {
-              const doc = await addDoc(collection(firestore, "campaigns"), { 
-                version: campaigns?.docs.length || 0, 
-                email: user?.email, 
-                timestamp: Timestamp.now() 
-              });
-              await addDoc(collection(firestore, "statistics"), {
-                campaignId: doc.id, 
-                clicks: 0,
-                impressions: 0,
-                conversionRate: 0,
-                totalCost: 0,
-                timestamp: Timestamp.now()
-              })
-              router.replace(`/main/campaigns/edit?id=${doc.id}`);
-            }}
-            text={
-              <div className="flex gap-2">
-                New Campaign <PlusSquare />
-              </div>
-            }
-          />
+          <CreateCampaignBtn campaignVersion={campaigns.docs.length} />
         </div>
       </div>
       {campaigns ?
@@ -64,7 +46,7 @@ export default function Campaigns() {
                 p-6 hover:bg-gray-100 transition ease-in-out duration-300 h-full"
               >
                 <div className="border-gray-500 border-2 flex justify-center items-center mb-8 border-opacity-30">
-                  {generatingImage || !data.generatedImage ?
+                  {!data.generatedImage ?
                     <Image
                       src={'/image-loading.png'}
                       alt="Placeholder image"
@@ -91,19 +73,15 @@ export default function Campaigns() {
                   <p><label className="font-bold mr-2">Call To Action:</label>{data.callToAction}</p>
                   <p><label className="font-bold mr-2">Target Audience:</label>{data.targetAudience}</p>
                   <div className="flex gap-3 justify-end mt-8">
-                    <Button onClickAction={() => router.push(`/main/campaigns/edit?id=${doc.id}`)} text={<EditIcon />} />
-                    <Button text={<Send />} />
-                    <Button
-                      onClickAction={() => {
-                        try {
-                          deleteDoc(docRef(firestore, "campaigns", doc.id))
-                        } catch (error) {
-                          console.error(error)
-                          toast.error('Delete campaign failed!')
+                    <Link href={`/main/campaigns/edit?id=${doc.id}`}>
+                      <Button
+                        text={
+                          <EditIcon />
                         }
-                      }}
-                      text={<Trash2 />}
-                    />
+                      />
+                    </Link>
+                    <Button text={<Send />} />
+                    <DeleteCampaignBtn campaignId={doc.id} />
                   </div>
                 </div>
               </div>

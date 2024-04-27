@@ -1,14 +1,12 @@
-'use client';
-
 import React from "react";
 import Button from "@/components/Button";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Navbar from '@/components/Navbar';
+import Link from "next/link";
+import { LogIn, Megaphone } from 'lucide-react';
+import { UserButton } from '@clerk/nextjs';
+import { auth, currentUser } from '@clerk/nextjs/server';
 
 const Home = () => {
-  const router = useRouter();
-
   return (
     <div className="text-gray-900 flex items-center justify-center">
       <div className="max-w-7xl">
@@ -26,7 +24,9 @@ const Home = () => {
               maximum impact. Let your brand shine in a crowded marketplace!
             </p>
             <div className="my-4">
-              <Button onClickAction={() => router.push('/main')} text="Get started" />
+              <Link href="/main">
+                <Button text="Get started" />
+              </Link>
             </div>
           </div>
           <div className="ml-10">
@@ -42,7 +42,7 @@ const Home = () => {
         </div>
 
         {/* Image Gallery Section */}
-        <section className="p-8 xl:m-12">
+        <section className="p-10 xl:m-12">
           <div className="max-w-xl">
             <h2 className="text-md font-medium mb-4 text-purple-500">
               Past projects
@@ -58,8 +58,7 @@ const Home = () => {
               endless customization possibilities to suit your advertising needs.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 my-12">
-            {/* Replace the following with your actual company and created images */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 mx-auto lg:grid-cols-3 gap-8 my-12">
             {['example1', 'example2', 'example3'].map((path, index) => (
               <Image
                 key={index}
@@ -96,3 +95,56 @@ const Home = () => {
 };
 
 export default Home;
+
+function Navbar() {
+  const { userId } = auth();
+
+  return (
+    <div className="">
+      <nav>
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="text-lg font-semibold flex justify-center items-center text-purple-500">
+              {/* <img src={logo} alt='RapidMarketing Logo' className="w-10 h-10"/> */}
+              <Megaphone />
+              <h2 className='ms-2'>RapidMarketing</h2>
+            </div>
+
+            {/* Navbar Links */}
+            <div className="flex">
+              <div className="hidden sm:block sm:ml-6">
+                <div className="flex space-x-4">
+                  <a
+                    href="/"
+                    className="transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Home
+                  </a>
+                  <a
+                    href="#"
+                    className="transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    About
+                  </a>
+                  <a
+                    href="#"
+                    className="transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Contact Us
+                  </a>
+                  {
+                    userId ?
+                    <UserButton/>
+                    :
+                    <LogIn size={20} />
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  )
+}

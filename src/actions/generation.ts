@@ -4,12 +4,13 @@ import { Campaign } from "@/lib/definitions";
 import { firestore, storage } from "@/lib/firebase";
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { fileTypeFromBuffer } from "file-type";
-import { getBytes, ref, uploadBytes } from "firebase/storage";
+import { getBytes, getMetadata, ref, uploadBytes } from "firebase/storage";
 import OpenAI, { APIError, AuthenticationError } from "openai";
 import fs from "fs";
 import path from "path";
 import { dataURLtoFile } from "@/utils/images";
 import { collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import sharp from "sharp";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 
@@ -35,7 +36,6 @@ const safetySettings = [
 
 export async function downloadImage(imagePath: string) {
   try {
-    // const folder = '/tmp/'
     const fileDestination = `/tmp/${imagePath}`;
     const folder = path.dirname(fileDestination);
 
@@ -45,8 +45,18 @@ export async function downloadImage(imagePath: string) {
 
     // Downloads the file
     const pathReference = ref(storage, imagePath);
+    const metadata = await getMetadata(pathReference);
+    const fileSize = metadata.size || 0;
+
     const arrayBuffer = await getBytes(pathReference);
-    fs.appendFileSync(fileDestination, Buffer.from(arrayBuffer));
+    if (fileSize > 1000000) {
+      console.log("COMPRESSING")
+      const sharpImage = sharp(Buffer.from(arrayBuffer));
+      await sharpImage.jpeg({ quality: 50 }).toFile(fileDestination);
+    } else {
+      fs.appendFileSync(fileDestination, Buffer.from(arrayBuffer));
+    }
+
     const fileType = await fileTypeFromBuffer(arrayBuffer);
 
     return {
@@ -161,8 +171,11 @@ export async function generateImage(formData: Campaign, docId:string, email:stri
   }
 }
 
-export async function generateDifferenceAnalysis(version1: Campaign, version2: Campaign) {
+export async function generateDifferenceAnalysis(version1String: string, version2String: string) {
   try {
+    const version1 = JSON.parse(version1String)
+    const version2 = JSON.parse(version2String)
+
     const [version1Img, version2Img] = await Promise.all([
       downloadImage(version1.generatedImage),
       downloadImage(version2.generatedImage)
@@ -182,9 +195,8 @@ export async function generateDifferenceAnalysis(version1: Campaign, version2: C
     const model = genAI.getGenerativeModel({ model: "gemini-pro-vision", safetySettings: safetySettings });
     const prompt = `Respond in JSON format, 
     {
-      difference: what is the difference between the two pictures? Be specific.
-      suggestions: after identifying the difference between the two images, 
-      identify what improvements can be made.
+      difference: Compare the two images. Give me the small and specific differences. 
+      suggestions: After comparing the two, and assuming the second image got a higher conversion rate, provide suggestions for future designs to perform even better.
     }
     `;
 
@@ -195,8 +207,15 @@ export async function generateDifferenceAnalysis(version1: Campaign, version2: C
       throw { blockReasonMessage: response.promptFeedback.blockReasonMessage };
     }
 
-    console.log(response.text())
-    return response.text();
+    const jsonRegex = /{[^{}]*}/; // Regular expression to match JSON object
+    const match = response.text().match(jsonRegex);
+
+    if (match) {
+      const jsonString = match[0];
+      console.log("JSON STRING "+jsonString)
+      const responseJSON = JSON.parse(jsonString);
+      return responseJSON;
+    }
   } catch (error) {
     console.error(error);
     throw error;

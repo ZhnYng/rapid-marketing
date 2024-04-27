@@ -1,17 +1,7 @@
-"use client"
-
 import { Calendar, Check, ChevronRightIcon, CircleDollarSign, LayoutDashboard, MousePointerClickIcon, Percent, PercentCircle, PlusSquare, View } from "lucide-react";
 import React from "react";
 import Button from "@/components/Button";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+
 import { Bar } from 'react-chartjs-2';
 import { faker } from '@faker-js/faker';
 import { onAuthStateChanged } from "firebase/auth";
@@ -20,56 +10,19 @@ import { DocumentData, QuerySnapshot, collection, getDocs, query, where } from "
 import { Campaign } from "@/lib/definitions";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection, useCollectionData } from "react-firebase-hooks/firestore";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { generatedImageUrl } from "@/utils/images";
 import Image from "next/image";
+import { currentUser } from "@clerk/nextjs/server";
+import Link from "next/link";
+import Chart from "@/components/Chart";
 
-export default function Dashboard() {
-  const router = useRouter();
-  // const [campaigns, setCampaigns] = React.useState<QuerySnapshot<DocumentData, DocumentData>>();
-  const [ user ] = useAuthState(auth); 
-
-  ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-  );
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Impressions & clicks',
-      },
-    },
-  };
-
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: 'Views',
-        data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-        backgroundColor: 'rgb(168 85 247)',
-      },
-      {
-        label: 'Clicks',
-        data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-        backgroundColor: 'rgb(216 180 254)',
-      },
-    ],
-  };
-
-  const [campaigns, loading, error] = useCollection(query(collection(firestore, "campaigns"), where("email", "==", user!.email)));
+export default async function Dashboard() {
+  const user = await currentUser();
+  const campaigns = await getDocs(query(
+    collection(firestore, "campaigns"), 
+    where("email", "==", user!.primaryEmailAddress?.emailAddress)
+  ));
 
   return (
     <div className="w-full p-6">
@@ -105,15 +58,7 @@ export default function Dashboard() {
         </div>
       </div>
       <div className="flex gap-4">
-        <div className="my-6 flex-[1]">
-          <h2 className="text-2xl my-4">Traction over time</h2>
-          <div className="bg-gray-100 rounded-lg p-4">
-            <div className="bg-white rounded-lg p-6">
-              <Bar options={options} data={data} />
-            </div>
-            <p className="flex gap-2 justify-end mt-4"><Calendar/>Last 12 months</p>
-          </div>
-        </div>
+        <Chart />
         <div className="my-6 flex-[1]">
           <h2 className="text-2xl my-4">Campaigns</h2>
           <div className="bg-gray-100 rounded-lg p-4">
@@ -149,15 +94,15 @@ export default function Dashboard() {
                             />
                           }
                         </td>
-                        <td className="text-lg">{data.brandName}</td>
+                        <td className="text-lg">{data.headline}</td>
                         <td className="capitalize">{data.size}</td>
                         <td>
-                          <Button
+                          {/* <Button
                             onClickAction={() => {
                               // router.push('/main/campaigns')
                             }}
                             text={<Check/>}
-                          />
+                          /> */}
                         </td>
                       </tr>
                     )
@@ -165,7 +110,12 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </div>
-            <p className="flex gap-2 justify-end mt-4 hover:cursor-pointer" onClick={() => router.push('/main/campaigns')}>To Campaings<ChevronRightIcon/></p>
+            <Link 
+              href="/main/campaigns" 
+              className="flex gap-2 justify-end mt-4 hover:cursor-pointer" 
+            >
+              To Campaings<ChevronRightIcon/>
+            </Link>
           </div>
         </div>
       </div>

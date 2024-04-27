@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import ReactQueryProvider from "@/lib/ReactQueryProvider"
 import clsx from "clsx";
 import { Metadata } from "next";
+import { ClerkProvider } from '@clerk/nextjs'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,13 +19,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ReactQueryProvider>
-      <html lang="en">
-        <body className={clsx(inter.className, "min-h-screen")}>
-          <Toaster />
-          {children}
-        </body>
-      </html>
-    </ReactQueryProvider>
+    <ClerkProvider>
+      <ReactQueryProvider>
+        <html lang="en">
+          <body className={clsx(inter.className, "min-h-screen")}>
+            <Toaster />
+            {children}
+          </body>
+        </html>
+      </ReactQueryProvider>
+    </ClerkProvider>
   );
 }

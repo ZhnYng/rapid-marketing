@@ -30,3 +30,9 @@ export type Analysis = {
   difference: string;
   suggestions: string;
 }
+
+export type Account = {
+  id: string;
+  email: string;
+  openaiAPIKey: string;
+}
