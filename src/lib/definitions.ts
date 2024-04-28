@@ -36,3 +36,11 @@ export type Account = {
   email: string;
   openaiAPIKey: string;
 }
+
+export type Brand = {
+  id: string;
+  brandName: string;
+  brandType: string;
+  brandDescription: string;
+  brandLogo: string;
+}

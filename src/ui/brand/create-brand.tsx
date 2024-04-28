@@ -16,9 +16,9 @@ export default function CreateBrandBtn() {
       onClickAction={async () => {
         const document = await addDoc(collection(firestore, "brands"), {
           email: user?.primaryEmailAddress?.emailAddress,
-          timestamp: Timestamp.now()
+          timestamp: Timestamp.now().nanoseconds
         });
-        router.push(`/main/brands/edit?id=${document.id}`);
+        router.push(`/main/brands/edit/${document.id}`);
       }}
       text={
         <div className="flex gap-2">

@@ -1,7 +1,7 @@
 import React from "react";
 import { EditIcon, PlusSquare, Presentation, Send, Trash2 } from "lucide-react";
 import { useCollection } from "react-firebase-hooks/firestore";
-import { collection, deleteDoc, getDocs, query, where, doc as docRef, addDoc, Timestamp } from "firebase/firestore";
+import { collection, deleteDoc, getDocs, query, where, doc as docRef, addDoc, Timestamp, orderBy } from "firebase/firestore";
 import { auth, firestore } from "@/lib/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Image from "next/image";
@@ -20,7 +20,8 @@ export default async function Campaigns() {
   const user = await currentUser();
   const campaigns = await getDocs(query(
     collection(firestore, "campaigns"),
-    where("email", "==", user?.primaryEmailAddress?.emailAddress)
+    where("email", "==", user?.primaryEmailAddress?.emailAddress),
+    orderBy("timestamp", "desc")
   ));
 
   return (
@@ -37,9 +38,9 @@ export default async function Campaigns() {
           <CreateCampaignBtn campaignVersion={campaigns.docs.length} />
         </div>
       </div>
-      {campaigns ?
+      {!campaigns.empty ?
         <div className="flex justify-center gap-8 w-full h-full flex-wrap">
-          {campaigns.docs.sort((a, b) => a.data().timestamp.nanoseconds - b.data().timestamp.nanoseconds).map((doc, index) => {
+          {campaigns.docs.map((doc, index) => {
             const data = doc.data() as Campaign;
             return (
               <div key={index} className="shadow-lg rounded-lg flex-col w-2/5 max-w-80
@@ -107,7 +108,7 @@ export default async function Campaigns() {
                   Create
                 </span>
               </div>
-              <p className="my-4">Creating a campaign through the button at the top right streamlines the process, offering a user-friendly interface with all necessary tools readily accessible. This efficient approach ensures that your campaign is launched swiftly, maximizing your reach and impact without unnecessary delays. With just a click, you unlock the potential to engage your audience effectively and achieve your campaign goals with ease.</p>
+              <p className="my-4">Creating a campaign through the button at the top right streamlines the process.</p>
               <p><label className="font-bold mr-2">Punchline:</label>Produce marketing materials in seconds.</p>
               <p><label className="font-bold mr-2">Call To Action:</label>Create a campaign today!</p>
               <p><label className="font-bold mr-2">Target Audience:</label>You</p>

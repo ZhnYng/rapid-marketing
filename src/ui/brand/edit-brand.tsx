@@ -12,14 +12,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore, storage } from "@/lib/firebase";
 import { ref, uploadBytes } from "firebase/storage";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import { useDocument } from "react-firebase-hooks/firestore";
-import { Campaign } from "@/lib/definitions";
+import { Brand, Campaign } from "@/lib/definitions";
 
-export default function Brand() {
+export default function EditBrand({
+  brandId,
+  brandData
+}: {
+  brandId: string
+  brandData: Brand
+}) {
   const router = useRouter();
-  const [user] = useAuthState(auth);
-  const searchParams = useSearchParams();
 
   const [uploadingForm, setUploadingForm] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -28,27 +32,11 @@ export default function Brand() {
     brandType: "",
     brandDescription: "",
     brandLogo: "",
-    //   brandName: "RapidMarketing",
-    //   brandType: "entertainment",
-    //   brandDescription:
-    //     "RapidMarketing is a service to help businesses generate marketing material rapidly. This is done with the aid of generative AI, creating attractive and cost efficient art for businesses to promote themselves efficiently.",
-    //   brandLogo: "",
   });
 
-  const docId = searchParams.get('id');
-  const [snapshot, loading, error] = useDocument(doc(firestore, "brands", docId!))
-
   useEffect(() => {
-    const data = snapshot?.data()
-    if (data) {
-      setFormData(data as Campaign)
-    }
-  }, [snapshot])
-
-  if (error) {
-    toast.error("Document retrieval failed")
-    router.push('/main')
-  }
+    setFormData(brandData)
+  }, [formData])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -107,16 +95,23 @@ export default function Brand() {
   });
 
   return (
-    loading ? 
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      <Loader2 className="animate-spin" />
-    </div>
-    :
     <form onSubmit={async (e: React.FormEvent) => {
       e.preventDefault();
-      setUploadingForm(true)
+      setUploadingForm(true);
+
+      const isFormDataEmpty = Object.values(formData).some(value => value === "");
+
       try {
-        await updateDoc(doc(firestore, "brands", docId!), formData);
+        if(isFormDataEmpty) {
+          toast.error("Fill in all fields!")
+          throw Error("Empty fields")
+        }
+
+        await updateDoc(doc(firestore, "brands", brandId), {
+          ...brandData,
+          ...formData
+        });
+
         router.push(`/main/brands`);
       } catch (error) {
         toast.error("Campaign not saved!")
@@ -198,8 +193,7 @@ export default function Brand() {
         <div className="flex gap-4">
           <div
             {...getRootProps({
-              className:
-                "border-dashed border-2 flex-[1] mt-2 rounded-xl cursor-pointer bg-gray-50 p-8 flex justify-center items-center flex-col",
+              className: "border-dashed border-2 border-gray-400 flex-[1] mt-4 rounded-xl cursor-pointer bg-gray-50 p-8 flex justify-center items-center flex-col",
             })}
           >
             <input {...getInputProps()} />
@@ -229,7 +223,7 @@ export default function Brand() {
           }
         </div>
       </div>
-      <Button text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Save & Continue"} />
+      <Button text={uploadingForm ? <Loader2 className="h-6 w-8 text-white animate-spin" /> : "Submit"} />
     </form>
   );
 }

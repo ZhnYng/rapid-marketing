@@ -16,15 +16,10 @@ export default function CreateCampaignBtn({ campaignVersion }: { campaignVersion
     isLoaded &&
     <Button
       onClickAction={async () => {
-        console.log({
-          version: campaignVersion,
-          email: user?.emailAddresses,
-          timestamp: Timestamp.now()
-        })
         const doc = await addDoc(collection(firestore, "campaigns"), {
           version: campaignVersion,
           email: user?.emailAddresses[0].emailAddress,
-          timestamp: Timestamp.now()
+          timestamp: Timestamp.now().nanoseconds
         });
         await addDoc(collection(firestore, "statistics"), {
           campaignId: doc.id,
@@ -32,9 +27,9 @@ export default function CreateCampaignBtn({ campaignVersion }: { campaignVersion
           impressions: 0,
           conversionRate: 0,
           totalCost: 0,
-          timestamp: Timestamp.now()
+          timestamp: Timestamp.now().nanoseconds
         })
-        router.replace(`/main/campaigns/edit?id=${doc.id}`);
+        router.replace(`/main/campaigns/edit/${doc.id}/brand`);
       }}
       text={
         <div className="flex gap-2">

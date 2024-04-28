@@ -24,6 +24,10 @@ export default function Size({
     size: ""
   });
 
+  useEffect(() => {
+    setFormData(campaignData)
+  }, [campaignData])
+
   return (
     <>
       <h1 className="text-4xl font-bold mb-8">2. Choose your preferred size</h1>
@@ -37,12 +41,9 @@ export default function Size({
             throw Error("Empty fields")
           }
 
-          await updateDoc(doc(firestore, "campaigns", campaignId), {
-            ...campaignData,
-            size: formData.size
-          });
+          await updateDoc(doc(firestore, "campaigns", campaignId), formData);
 
-          router.push(`/main/campaigns/edit/content?id=${campaignId}`);
+          router.push(`/main/campaigns/edit/${campaignId}/content`);
         } catch (error) {
           toast.error("Campaign not saved!")
         } finally {

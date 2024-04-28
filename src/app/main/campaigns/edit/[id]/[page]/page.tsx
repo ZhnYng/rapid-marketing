@@ -8,20 +8,26 @@ import Size from "@/ui/campaign/edit/size";
 import { currentUser } from "@clerk/nextjs/server";
 import clsx from "clsx";
 import { DocumentData, QuerySnapshot, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
-import { Loader2 } from "lucide-react";
-import Image from "next/image";
-import { redirect } from "next/navigation";
-import toast from "react-hot-toast";
 
 export default async function Page({ params }: { params: { id: string, page: string } }) {
   const user = await currentUser();
 
+  const campaign = await getDoc(doc(firestore, "campaigns", params.id))
   const brands = await getDocs(query(
     collection(firestore, "brands"),
     where("email", "==", user?.primaryEmailAddress?.emailAddress)
   ));
 
-  const campaign = await getDoc(doc(firestore, "campaigns", params.id))
+  const brandsFiltered = brands.docs.map(brand => {
+    const data = brand.data();
+    return {
+      id: brand.id,
+      brandDescription: data.brandDescription,
+      brandName: data.brandName,
+      brandType: data.brandType,
+      brandLogo: data.brandLogo,
+    } 
+  })
 
   switch (params.page) {
     case "brand":
@@ -29,7 +35,7 @@ export default async function Page({ params }: { params: { id: string, page: str
         <Brand 
           campaignId={params.id} 
           campaignData={campaign.data() as Campaign}
-          brands={brands.docs}
+          brands={JSON.parse(JSON.stringify(brandsFiltered))}
         />
       )
     case "size":

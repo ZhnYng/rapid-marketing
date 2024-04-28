@@ -32,6 +32,10 @@ export default function Images({
     exampleImage: "",
   });
 
+  useEffect(() => {
+    setFormData(campaignData)
+  }, [campaignData])
+
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/jpeg": [],
@@ -84,19 +88,13 @@ export default function Images({
       e.preventDefault();
       setUploadingForm(true)
 
-      const isFormDataEmpty = Object.values(formData).some(value => value === "");
-
       try {
-        if (isFormDataEmpty) {
-          toast.error("Fill in all fields!")
+        if (!formData.exampleImage) {
+          toast.error("Provide an example image!")
           throw Error("Empty fields")
         }
 
-        await updateDoc(doc(firestore, "campaigns", campaignId), {
-          ...campaignData,
-          ...formData
-        });
-        
+        await updateDoc(doc(firestore, "campaigns", campaignId), formData);
         router.push(`/main/campaigns/`);
 
         // const response = await generateImage(formData as Campaign, campaignId!, user!.email!);

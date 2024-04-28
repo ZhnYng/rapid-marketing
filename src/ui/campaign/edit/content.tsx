@@ -29,6 +29,10 @@ export default function Content({
     callToAction: "",
   });
 
+  useEffect(() => {
+    setFormData(campaignData)
+  }, [campaignData])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
@@ -43,18 +47,8 @@ export default function Content({
       e.preventDefault();
       setUploadingForm(true);
 
-      const isFormDataEmpty = Object.values(formData).some(value => value === "");
-    
       try {
-        if(isFormDataEmpty) {
-          toast.error("Fill in all fields!")
-          throw Error("Empty fields")
-        }
-
-        await updateDoc(doc(firestore, "campaigns", campaignId!), {
-          ...campaignData,
-          ...formData
-        });
+        await updateDoc(doc(firestore, "campaigns", campaignId!), formData);
         
         router.push(`/main/campaigns/edit/${campaignId}/images`);
       } catch (error) {
