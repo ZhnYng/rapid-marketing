@@ -73,7 +73,7 @@ export default async function Campaigns() {
                   <p><label className="font-bold mr-2">Call To Action:</label>{data.callToAction}</p>
                   <p><label className="font-bold mr-2">Target Audience:</label>{data.targetAudience}</p>
                   <div className="flex gap-3 justify-end mt-8">
-                    <Link href={`/main/campaigns/edit?id=${doc.id}`}>
+                    <Link href={`/main/campaigns/edit/${doc.id}/brand`}>
                       <Button
                         text={
                           <EditIcon />

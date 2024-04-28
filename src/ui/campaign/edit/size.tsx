@@ -5,13 +5,18 @@ import React, { useEffect, useState } from "react";
 import Button from "@/components/Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDocument } from "react-firebase-hooks/firestore";
-import { doc, updateDoc } from "firebase/firestore";
+import { DocumentData, QueryDocumentSnapshot, doc, updateDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import { Campaign } from "@/lib/definitions";
 
-export default function Size() {
-  const searchParams = useSearchParams();
+export default function Size({
+  campaignId,
+  campaignData,
+}: {
+  campaignId: string;
+  campaignData: Campaign;
+}) {
   const router = useRouter();
   const [uploadingForm, setUploadingForm] = useState(false);
 
@@ -19,40 +24,25 @@ export default function Size() {
     size: ""
   });
 
-  const docId = searchParams.get('id')
-  if (!docId) {
-    router.replace('/main/campaigns')
-    toast.error('Document ID not found')
-  }
-
-  const [snapshot, loading, error] = useDocument(doc(firestore, "campaigns", docId!))
-
-  useEffect(() => {
-    const data = snapshot?.data()
-    if (data) {
-      setFormData(data as Campaign)
-    }
-  }, [snapshot])
-
-  if (error) {
-    toast.error("Document retrieval failed")
-    router.push('/main')
-  }
-
   return (
-    loading ? 
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      <Loader2 className="animate-spin" />
-    </div>
-    :
     <>
       <h1 className="text-4xl font-bold mb-8">2. Choose your preferred size</h1>
       <form onSubmit={async (e: React.FormEvent) => {
         e.preventDefault();
         setUploadingForm(true)
+        
         try {
-          await updateDoc(doc(firestore, "campaigns", docId!), formData as Campaign);
-          router.push(`/main/campaigns/edit/content?id=${docId}`);
+          if (!formData.size) {
+            toast.error("Choose a size!")
+            throw Error("Empty fields")
+          }
+
+          await updateDoc(doc(firestore, "campaigns", campaignId), {
+            ...campaignData,
+            size: formData.size
+          });
+
+          router.push(`/main/campaigns/edit/content?id=${campaignId}`);
         } catch (error) {
           toast.error("Campaign not saved!")
         } finally {

@@ -11,10 +11,14 @@ import { Campaign } from "@/lib/definitions";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 
-export default function Content() {
+export default function Content({
+  campaignId,
+  campaignData,
+}: {
+  campaignId: string;
+  campaignData: Campaign;
+}) {
   const router = useRouter();
-  const [user] = useAuthState(auth);
-  const searchParams = useSearchParams();
   const [uploadingForm, setUploadingForm] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -23,12 +27,6 @@ export default function Content() {
     headline: "",
     punchline: "",
     callToAction: "",
-    // projectDescription:
-    //   "RapidMarketing is a service to help businesses generate marketing material rapidly. This is done with the aid of generative AI, creating attractive and cost efficient art for businesses to promote themselves efficiently.",
-    // targetAudience: "Business Leaders, marketing agencies, marketing managers",
-    // headline: "Advertise in seconds",
-    // punchline: "Posts in the blink of an eye",
-    // callToAction: "Promote your business today",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -40,38 +38,25 @@ export default function Content() {
     });
   }
 
-  const docId = searchParams.get('id')
-  if (!docId) {
-    router.replace('/main/campaigns')
-    toast.error('Document ID not found')
-  }
-
-  const [snapshot, loading, error] = useDocument(doc(firestore, "campaigns", docId!))
-  
-  useEffect(() => {
-    const data = snapshot?.data()
-    if (data) {
-      setFormData(data as Campaign)
-    }
-  }, [snapshot])
-
-  if (error) {
-    toast.error("Document retrieval failed")
-    router.push('/main')
-  }
-
   return (
-    loading ? 
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      <Loader2 className="animate-spin" />
-    </div>
-    :
     <form onSubmit={async (e: React.FormEvent) => {
       e.preventDefault();
-      setUploadingForm(true)
+      setUploadingForm(true);
+
+      const isFormDataEmpty = Object.values(formData).some(value => value === "");
+    
       try {
-        await updateDoc(doc(firestore, "campaigns", docId!), formData as Campaign);
-        router.push(`/main/campaigns/edit/images?id=${docId}`);
+        if(isFormDataEmpty) {
+          toast.error("Fill in all fields!")
+          throw Error("Empty fields")
+        }
+
+        await updateDoc(doc(firestore, "campaigns", campaignId!), {
+          ...campaignData,
+          ...formData
+        });
+        
+        router.push(`/main/campaigns/edit/${campaignId}/images`);
       } catch (error) {
         toast.error("Campaign not saved!")
       } finally {
