@@ -9,8 +9,10 @@ import OpenAI, { APIError, AuthenticationError } from "openai";
 import fs from "fs";
 import path from "path";
 import { dataURLtoFile } from "@/utils/images";
-import { collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteField, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import sharp from "sharp";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 
@@ -171,10 +173,13 @@ export async function generateImage(formData: Campaign, docId:string, email:stri
   }
 }
 
-export async function generateDifferenceAnalysis(version1String: string, version2String: string) {
+export async function generateDifferenceAnalysis(
+  campaign: Campaign, 
+  prevCampaign: Campaign
+) {
   try {
-    const version1 = JSON.parse(version1String)
-    const version2 = JSON.parse(version2String)
+    const version1 = campaign
+    const version2 = prevCampaign
 
     const [version1Img, version2Img] = await Promise.all([
       downloadImage(version1.generatedImage),
@@ -204,20 +209,31 @@ export async function generateDifferenceAnalysis(version1String: string, version
 
     const response = result.response;
     if (response.promptFeedback?.blockReason) {
+      // Harm block
       throw { blockReasonMessage: response.promptFeedback.blockReasonMessage };
     }
 
-    const jsonRegex = /{[^{}]*}/; // Regular expression to match JSON object
+    const jsonRegex = /{(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*}/; // Regular expression to match JSON object
     const match = response.text().match(jsonRegex);
 
-    if (match) {
-      const jsonString = match[0];
-      console.log("JSON STRING "+jsonString)
-      const responseJSON = JSON.parse(jsonString);
-      return responseJSON;
-    }
+    const jsonString = match![0];
+    const analysis = JSON.parse(jsonString);
+
+    const analysisDoc = await addDoc(collection(firestore, "analysis"), {
+      campaignId1: campaign.id,
+      campaignId2: prevCampaign.id,
+      difference: analysis.difference,
+      suggestions: analysis.suggestions
+    })
+
+    await updateDoc(
+      doc(firestore, "campaigns", campaign.id), 
+      { analysisId: analysisDoc.id }
+    )
+    revalidatePath('/main/analysis');
+    return analysisDoc.id
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     throw error;
   }
 }

@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 
 export type Campaign = {
+  id: string;
   brandId: string;
   version: number;
   size: string;

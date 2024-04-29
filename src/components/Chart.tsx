@@ -43,12 +43,12 @@ export default function Chart() {
     datasets: [
       {
         label: 'Views',
-        data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
+        data: labels.map(() => faker.datatype.number({ min: 0, max: 500 })),
         backgroundColor: 'rgb(168 85 247)',
       },
       {
         label: 'Clicks',
-        data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
+        data: labels.map(() => faker.datatype.number({ min: 0, max: 500 })),
         backgroundColor: 'rgb(216 180 254)',
       },
     ],

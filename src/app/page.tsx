@@ -137,7 +137,10 @@ function Navbar() {
                     userId ?
                     <UserButton/>
                     :
-                    <LogIn size={20} />
+                    <Link href="/sign-in" className="hover:cursor-pointer flex items-center gap-2 transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium">
+                      Login
+                      <LogIn size={20} />
+                    </Link>
                   }
                 </div>
               </div>
