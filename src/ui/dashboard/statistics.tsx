@@ -71,7 +71,7 @@ export default function Statistics(
       </div>
       <select name="cars" id="cars" className="absolute top-5 right-5 rounded-md p-1" onChange={handleChange} value={campaignId}>
         {campaigns.map(campaign => {
-          return <option value={campaign.id}>Version {campaign.version}</option>
+          return <option key={campaign.id} value={campaign.id}>Version {campaign.version}</option>
         })}
       </select>
     </>
