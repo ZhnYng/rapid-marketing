@@ -33,7 +33,7 @@ export default async function Dashboard() {
       </div>
       <h1 className="text-3xl mb-8 mt-4">Statistics</h1>
       <Statistics campaigns={campaignData}/>
-      <div className="flex gap-4">
+      <div className="flex gap-4 md:flex-row flex-col">
         <Chart />
         <div className="my-6 flex-[1]">
           <h2 className="text-2xl my-4">Campaigns</h2>

@@ -37,6 +37,7 @@ export default function Form({ accountId, account }: { accountId:string, account
           type="text"
           id="openaiAPIKey"
           name="openaiAPIKey"
+          defaultValue={account.openaiAPIKey}
           placeholder="Enter API key here"
           className="w-full border-2 rounded-md p-2 focus:outline-none focus:border-black"
         />

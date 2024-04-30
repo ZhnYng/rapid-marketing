@@ -13,7 +13,7 @@ export default function Layout({
 
   if (userId) {
     return (
-      <div className="flex min-h-screen">
+      <div className="md:flex min-h-screen">
         <Sidebar/>
         <div className="flex-[7] w-full h-full bg-gray-200 min-h-screen relative">
           {children}

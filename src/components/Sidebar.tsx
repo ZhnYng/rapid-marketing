@@ -11,7 +11,7 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    < div className="flex-[1] p-4 flex-col sticky top-0">
+    <div className="flex-[1] p-4 flex-col sticky top-0 max-h-screen">
       <div
         className="text-xl font-bold flex p-3 rounded-xl mb-4 
                   hover:cursor-pointer transition ease-in-out 

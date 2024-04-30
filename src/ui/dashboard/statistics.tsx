@@ -43,7 +43,7 @@ export default function Statistics(
   return (
     statistics &&
     <>
-      <div className="flex gap-4 w-full">
+      <div className="flex gap-4 w-full flex-col md:flex-row">
         <div className="bg-gray-100 rounded-lg flex-[1]">
           <label className="flex gap-2 p-4"><View />Total views</label>
           <div className="m-4 p-4 bg-white text-center rounded-lg">
