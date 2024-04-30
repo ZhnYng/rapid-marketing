@@ -31,7 +31,7 @@ export default function Content({
 
   useEffect(() => {
     setFormData(campaignData)
-  }, [campaignData])
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

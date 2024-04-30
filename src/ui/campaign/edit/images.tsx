@@ -34,7 +34,7 @@ export default function Images({
 
   useEffect(() => {
     setFormData(campaignData)
-  }, [campaignData])
+  }, [])
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {

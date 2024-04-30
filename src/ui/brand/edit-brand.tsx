@@ -36,7 +36,7 @@ export default function EditBrand({
 
   useEffect(() => {
     setFormData(brandData)
-  }, [formData])
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -107,10 +107,7 @@ export default function EditBrand({
           throw Error("Empty fields")
         }
 
-        await updateDoc(doc(firestore, "brands", brandId), {
-          ...brandData,
-          ...formData
-        });
+        await updateDoc(doc(firestore, "brands", brandId), formData);
 
         router.push(`/main/brands`);
       } catch (error) {

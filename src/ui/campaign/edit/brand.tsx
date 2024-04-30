@@ -29,7 +29,7 @@ export default function BrandSection({
 
   useEffect(() => {
     setFormData(campaignData)
-  }, [campaignData])
+  }, [])
 
   return (
     <>

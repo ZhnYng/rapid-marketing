@@ -1,6 +1,7 @@
 "use client"
 
 import Button from "@/components/Button"
+import { deleteBrand } from "@/lib/actions"
 import { firestore } from "@/lib/firebase"
 import { deleteDoc, doc } from "firebase/firestore"
 import { Trash2 } from "lucide-react"
@@ -14,9 +15,9 @@ export default function DeleteBrandBtn({
 }) {
   return (
     <Button
-      onClickAction={() => {
+      onClickAction={async () => {
         try {
-          deleteDoc(doc(firestore, "brands", brandId))
+          await deleteBrand(brandId)
         } catch (error) {
           console.error(error)
           toast.error('Delete campaign failed!')

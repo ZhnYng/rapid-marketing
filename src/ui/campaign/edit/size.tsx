@@ -26,7 +26,7 @@ export default function Size({
 
   useEffect(() => {
     setFormData(campaignData)
-  }, [campaignData])
+  }, [])
 
   return (
     <>
