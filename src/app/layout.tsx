@@ -29,6 +29,7 @@ export default function RootLayout({
         {isBrowser &&
           <html lang="en">
             <body className={clsx(inter.className, "min-h-screen")}>
+              <link rel="icon" href="/favicon.ico" sizes="any" />
               <Toaster />
               {children}
             </body>
