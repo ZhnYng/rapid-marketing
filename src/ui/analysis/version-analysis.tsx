@@ -1,10 +1,7 @@
 import { generateDifferenceAnalysis } from "@/actions/generation";
-import { Analysis, Campaign } from "@/lib/definitions";
+import { Analysis, Campaign, Statistics } from "@/lib/definitions";
 import { firestore } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import Button from "@/components/Button";
-import { RefreshCcw } from "lucide-react";
-import { revalidatePath } from "next/cache";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import RegenerateAnalysisBtn from "./regenerate-analysis";
 
 export default async function VersionAnalysis(
@@ -16,11 +13,26 @@ export default async function VersionAnalysis(
     prevCampaign: Campaign;
   }
 ) {
+  const currStats = await getDocs(query(
+    collection(firestore, "statistics"),
+    where("campaignId", "==", campaign.id)
+  ))
+
+  const prevStats = await getDocs(query(
+    collection(firestore, "statistics"),
+    where("campaignId", "==", prevCampaign.id)
+  ))
+
+  const currStatsData = currStats.docs[0].data() as Statistics;
+  const prevStatsData = prevStats.docs[0].data() as Statistics;
+
   const generateVersionAnalysis = async () => {
     try {
       const analysisId = await generateDifferenceAnalysis(
         campaign,
-        prevCampaign
+        prevCampaign,
+        currStatsData,
+        prevStatsData
       );
       campaign.analysisId = analysisId!
     } catch (err) {
@@ -36,6 +48,8 @@ export default async function VersionAnalysis(
             <RegenerateAnalysisBtn
               campaign={campaign}
               prevCampaign={prevCampaign}
+              currStatsData={currStatsData}
+              prevStatsData={prevStatsData}
             />
           </div>
         </>
@@ -65,6 +79,8 @@ export default async function VersionAnalysis(
         <RegenerateAnalysisBtn
           campaign={campaign}
           prevCampaign={prevCampaign}
+          currStatsData={currStatsData}
+          prevStatsData={prevStatsData}
         />
       </div>
     </>

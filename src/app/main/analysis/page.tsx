@@ -1,10 +1,8 @@
 import Button from "@/components/Button";
 import { Analysis, Campaign, Statistics } from "@/lib/definitions";
 import { generatedImageUrl } from "@/utils/images";
-import { ArrowLeft, ArrowRight, Check, CircleDollarSign, LineChart, Loader2, LucideEye, MousePointerClick, Percent, ScanEye } from "lucide-react";
-import { collection, query, where, doc as docRef, orderBy, doc, addDoc, updateDoc, QuerySnapshot, DocumentSnapshot, DocumentData, getDocs } from "firebase/firestore";
-import { useCollection, useDocument } from "react-firebase-hooks/firestore";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { ArrowLeft, ArrowRight, Check, CircleDollarSign, LineChart } from "lucide-react";
+import { collection, query, where, doc as docRef, orderBy, getDocs } from "firebase/firestore";
 import { auth, firestore } from "@/lib/firebase";
 import Image from "next/image";
 import React, { Suspense } from "react";
@@ -26,7 +24,7 @@ export default async function Page() {
   return (
     campaigns &&
     <div className="w-full p-6 pb-20">
-      <div className="border-b border-gray-300 ">
+      <div>
         <div className="text-2xl flex mb-2 rounded-xl font-bold items-center">
           <LineChart />
           <h2 className="ms-2">Analysis</h2>

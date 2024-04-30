@@ -14,6 +14,9 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      animation: {
+        spin: "spin 1s linear infinite"
+      }
     },
     keyframes: {
       shimmer: {
@@ -21,6 +24,14 @@ const config: Config = {
           transform: 'translateX(100%)',
         },
       },
+      spin: {
+        from: {
+          transform: 'rotate(0deg)'
+        },
+        to: {
+          transform: 'rotate(360deg)'
+        }
+      }
     },
   },
   plugins: [],

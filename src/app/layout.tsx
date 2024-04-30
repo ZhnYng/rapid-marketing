@@ -5,7 +5,6 @@ import ReactQueryProvider from "@/lib/ReactQueryProvider"
 import clsx from "clsx";
 import { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs'
-import { isBrowser, isMobile } from 'react-device-detect';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,22 +18,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  if (isMobile) {
-    return <div> This content is available only on desktop</div>
-  }
-
   return (
     <ClerkProvider>
       <ReactQueryProvider>
-        {isBrowser &&
-          <html lang="en">
-            <body className={clsx(inter.className, "min-h-screen")}>
-              <link rel="icon" href="/favicon.ico" sizes="any" />
-              <Toaster />
-              {children}
-            </body>
-          </html>
-        }
+        <html lang="en">
+          <body className={clsx(inter.className, "min-h-screen")}>
+            <link rel="icon" href="/favicon.ico" sizes="any" />
+            <Toaster />
+            {children}
+          </body>
+        </html>
       </ReactQueryProvider>
     </ClerkProvider>
   );

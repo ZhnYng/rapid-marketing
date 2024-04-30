@@ -1,6 +1,6 @@
 "use server";
 
-import { Campaign } from "@/lib/definitions";
+import { Campaign, Statistics } from "@/lib/definitions";
 import { firestore, storage } from "@/lib/firebase";
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { fileTypeFromBuffer } from "file-type";
@@ -175,11 +175,13 @@ export async function generateImage(formData: Campaign, docId:string, email:stri
 
 export async function generateDifferenceAnalysis(
   campaign: Campaign, 
-  prevCampaign: Campaign
+  prevCampaign: Campaign,
+  currStatsData: Statistics,
+  prevStatsData: Statistics,
 ) {
   try {
-    const version1 = campaign
-    const version2 = prevCampaign
+    const version1 = prevCampaign
+    const version2 = campaign
 
     const [version1Img, version2Img] = await Promise.all([
       downloadImage(version1.generatedImage),
@@ -201,9 +203,15 @@ export async function generateDifferenceAnalysis(
     const prompt = `Respond in JSON format, 
     {
       difference: Compare the two images. Give me the small and specific differences. 
-      suggestions: After comparing the two, and assuming the second image got a higher conversion rate, provide suggestions for future designs to perform even better.
+      suggestions: After comparing the two, compare their statistics below and provide suggestions for future designs to perform even better.
     }
+    First image advertising statistics: 
+    ${JSON.stringify(prevStatsData)}
+
+    Second image advertising statistics: 
+    ${JSON.stringify(currStatsData)}
     `;
+    console.log(prompt)
 
     const result = await model.generateContent([prompt, ...imageParts]);
 
@@ -233,7 +241,6 @@ export async function generateDifferenceAnalysis(
     revalidatePath('/main/analysis');
     return analysisDoc.id
   } catch (error) {
-    // console.error(error);
     throw error;
   }
 }
