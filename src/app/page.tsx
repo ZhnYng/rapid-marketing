@@ -2,9 +2,7 @@ import React from "react";
 import Button from "@/components/Button";
 import Image from "next/image";
 import Link from "next/link";
-import { LogIn, Megaphone } from 'lucide-react';
-import { UserButton } from '@clerk/nextjs';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import Navbar from "@/components/Navbar";
 
 const Home = () => {
   return (
@@ -95,59 +93,3 @@ const Home = () => {
 };
 
 export default Home;
-
-function Navbar() {
-  const { userId } = auth();
-
-  return (
-    <div className="">
-      <nav>
-        <div className="mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="text-lg font-semibold flex justify-center items-center text-purple-500">
-              {/* <img src={logo} alt='RapidMarketing Logo' className="w-10 h-10"/> */}
-              <Megaphone />
-              <h2 className='ms-2'>RapidMarketing</h2>
-            </div>
-
-            {/* Navbar Links */}
-            <div className="flex">
-              <div className="hidden sm:block sm:ml-6">
-                <div className="flex space-x-4">
-                  <a
-                    href="/"
-                    className="transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Home
-                  </a>
-                  <a
-                    href="#"
-                    className="transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    About
-                  </a>
-                  <a
-                    href="#"
-                    className="transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Contact Us
-                  </a>
-                  {
-                    userId ?
-                    <UserButton/>
-                    :
-                    <Link href="/sign-in" className="hover:cursor-pointer flex items-center gap-2 transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300 px-3 py-2 rounded-md text-sm font-medium">
-                      Login
-                      <LogIn size={20} />
-                    </Link>
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </div>
-  )
-}
