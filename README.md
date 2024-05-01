@@ -1,3 +1,6 @@
+# Rapid Marketing
+------------------
+
 ## Inspiration
 
 During my interactions with various startup accelerator groups, I engaged with numerous founders and identified a common challenge: **Effective, low-cost marketing**. Advertising expenses can quickly escalate, especially for startups with limited funding. Finding marketing strategies that resonate with customers while keeping costs manageable is crucial.
