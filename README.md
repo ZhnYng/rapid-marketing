@@ -1,5 +1,4 @@
 # Rapid Marketing
-------------------
 
 ## Inspiration
 
